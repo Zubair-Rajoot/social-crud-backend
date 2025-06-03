@@ -1,5 +1,5 @@
 const express = require('express');
-const { createPost, getPosts, updatePost, deletePost, searchPosts,  } = require('../controller/postController');
+const { createPost, getPosts, updatePost, deletePost, searchPosts, } = require('../controller/postController');
 const authMiddleware = require('../middleware/authMidedleware');
 const multer = require('multer');
 const path = require('path');

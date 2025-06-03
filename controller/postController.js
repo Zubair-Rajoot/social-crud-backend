@@ -8,7 +8,7 @@ exports.createPost = async (req, res) => {
             return res.status(400).json({ message: "Title and content are required" });
         }
 
-        // multer stores uploaded file info in req.file
+        
         const image = req.file ? req.file.filename : null;
 
       
