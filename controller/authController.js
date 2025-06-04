@@ -1,38 +1,31 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const User = require('../model/authModel'); 
+const User = require('../model/authModel');
 const Post = require('../model/postModel');
 
-
-
 exports.register = async (req, res) => {
- try {
-     const { name, email, password } = req.body;
+  try {
+    const { name, email, password } = req.body;
 
-  const existingUser = await User.findOne({ email });
-  if (existingUser) return res.status(400).send('User already exists');
+    const existingUser = await User.findOne({ email });
+    if (existingUser) return res.status(400).send('User already exists');
 
-  const hashedPassword = await bcrypt.hash(password, 10); 
+    const hashedPassword = await bcrypt.hash(password, 10);
 
+    const user = new User({
+      name,
+      email,
+      password: hashedPassword,
+    });
 
-  const user = new User({
-    name,
-    email,
-    password: hashedPassword,
-  });
-
-
-
-  await user.save();
-  res.status(201).json({ message: 'User registered' });
- } catch (error) {
-     res.status(500).send('Internal Server error');
- }
+    await user.save();
+    res.status(201).json({ message: 'User registered' });
+  } catch (error) {
+    res.status(500).send('Internal Server error');
+  }
 };
 
-
-
-const JWT_SECRET = 'zubair123'
+const JWT_SECRET = 'zubair123';
 exports.login = async (req, res) => {
   const { email, password } = req.body;
 
@@ -65,14 +58,12 @@ exports.login = async (req, res) => {
   }
 };
 
-
-
 exports.getProfile = async (req, res) => {
   try {
-   const userId = req.user._id; 
-    console.log("userId", userId);
+    const userId = req.user._id;
+    console.log('userId', userId);
 
-    const user = await User.findById(userId).select('-password'); 
+    const user = await User.findById(userId).select('-password');
     const posts = await Post.find({ userId });
 
     res.status(200).json({
@@ -80,16 +71,37 @@ exports.getProfile = async (req, res) => {
       user: {
         name: user.name,
         email: user.email,
-        posts: posts
-      }
+        posts: posts,
+      },
     });
-
   } catch (error) {
     res.status(500).json({
       success: false,
       message: 'Failed to load profile',
-      error: error.message
+      error: error.message,
     });
   }
 };
 
+exports.uploadAvatar = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const avatar = req.file ? req.file.filename : null;
+
+    const user = await User.findByIdAndUpdate(userId, { avatar }, { new: true }).select(
+      '-password'
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.status(200).json({
+      success: true,
+      user,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
