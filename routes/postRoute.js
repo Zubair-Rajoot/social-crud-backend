@@ -26,7 +26,10 @@ const router = express.Router();
 
 router.post('/create', authMiddleware, upload.single('image'), createPost);
 router.get('/all', authMiddleware, getPosts);
-router.put('/update/:id', authMiddleware, updatePost);
+
+
+router.put('/update/:id', authMiddleware, upload.single('image'), updatePost);
+
 
 router.delete('/delete/:id', authMiddleware, deletePost);
 
