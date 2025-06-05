@@ -71,6 +71,7 @@ exports.getProfile = async (req, res) => {
       user: {
         name: user.name,
         email: user.email,
+        avatar: user.avatar,
         posts: posts,
       },
     });
@@ -86,8 +87,11 @@ exports.getProfile = async (req, res) => {
 exports.uploadAvatar = async (req, res) => {
   try {
     const userId = req.user._id;
-    const avatar = req.file ? req.file.filename : null;
+    if (!req.file) {
+      return res.status(400).json({ message: 'No file uploaded' });
+    }
 
+    const avatar = req.file.filename;
     const user = await User.findByIdAndUpdate(userId, { avatar }, { new: true }).select(
       '-password'
     );
@@ -98,10 +102,37 @@ exports.uploadAvatar = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      user,
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        avatar: user.avatar,
+      },
     });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error' });
+  }
+};
+
+exports.getAvatar = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const user = await User.findById(userId).select('avatar');
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    res.status(200).json({
+      success: true,
+      avatar: user.avatar,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Failed to load avatar',
+      error: error.message,
+    });
   }
 };

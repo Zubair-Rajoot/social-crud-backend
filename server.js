@@ -14,7 +14,7 @@ const port = 3000;
 app.use(cors());
 app.use(express.json());
 
-const storage = multer.diskStorage({
+const postStorage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, 'uploads/');
   },
@@ -23,22 +23,30 @@ const storage = multer.diskStorage({
   },
 });
 
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+const uploadsDir = './uploads';
+const avatarsDir = './uploads/avatars';
+
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir);
+}
+if (!fs.existsSync(avatarsDir)) {
+  fs.mkdirSync(avatarsDir, { recursive: true });
+}
+
 const avatarStorage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'uploads/avatars/');
+    cb(null, avatarsDir);
   },
   filename: function (req, file, cb) {
     cb(null, Date.now() + '-' + file.originalname);
   },
 });
 
-const upload = multer({ storage });
-
-app.use('/uploads', express.static('uploads'));
-
 const dir = './uploads';
 if (!fs.existsSync(dir)) {
-  fs.mkdirSync(dir);
+  fs.mkdirSync(dir, { recursive: true });
 }
 
 app.use('/api/auth', authRoute);
@@ -49,12 +57,8 @@ mongoose
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
-  .then(() => {
-    console.log('Connected to MongoDB');
-  })
-  .catch(err => {
-    console.error('Error connecting to MongoDB:', err);
-  });
+  .then(() => console.log('Connected to MongoDB'))
+  .catch(err => console.error('Error connecting to MongoDB:', err));
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);

@@ -18,6 +18,7 @@ exports.createPost = async (req, res) => {
     });
 
     await post.save();
+    console.log('post save successfully');
 
     res.status(200).json({
       success: true,

@@ -17,13 +17,13 @@
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.15.1",
-    "multer": "^2.0.0",
-    "nodemon": "^3.1.10"
+    "multer": "^2.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.28.0",
     "eslint": "^9.28.0",
     "globals": "^16.2.0",
+    "nodemon": "^3.1.10",
     "prettier": "^3.5.3"
   }
 }
